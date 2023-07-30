@@ -9,7 +9,8 @@ def load_workbook(wb_path):
     if os.path.exists(wb_path):
         return openpyxl.load_workbook(wb_path)
     else:
-        return messagebox.showerror ("Erro", "arquivo não encontrado")
+        messagebox.showerror ("Erro", "arquivo não encontrado")
+        return None 
     
 wb_path = "produtos.xlsx"
 wb = load_workbook(wb_path)
@@ -19,8 +20,9 @@ list_values = list(sheet_obj.values)
 
 # CRIANDO AS FUNÇÕES DOS BOTÕES
 def insert_row():
+
     # Pegando as informações dos widgets
-    code = int(code_spinbox.get())
+    code = code_spinbox.get()
     product = product_entry.get()
     stock_status = status_combobox.get()
     avaliability = "Saiu de linha" if a.get() else "Disponível"
@@ -46,8 +48,82 @@ def insert_row():
     status_combobox.insert(0, "Status de estoque")
     a.set(False)
 
+# Função para selecionar o produto já cadastrado
+def select_product():
+    selected_item = treeview.selection()
+
+    if not selected_item:
+        messagebox.showwarning("Aviso", "Selecione um produto na lista.")
+    else:
+        values = treeview.item(selected_item, 'values')
+        code_spinbox.delete(0, tk.END)
+        code_spinbox.insert(0, values[0])
+        product_entry.delete(0, tk.END)
+        product_entry.insert(0, values[1])
+        status_combobox.delete(0, tk.END)
+        status_combobox.insert(0, values[2])
+        a.set(True if values[3] == "Saiu de linha" else False)
+   
+# Função para salvar alterações no produto
+def update_product():
+    # Pegando as informações dos widgets
+    selected_item = treeview.selection()
+
+    if not selected_item:
+        messagebox.showwarning("Aviso", "Selecione um produto na lista para editar.")
+        return
+
+    code = code_spinbox.get()
+    product = product_entry.get()
+    stock_status = status_combobox.get()
+    avaliability = "Saiu de linha" if a.get() else "Disponível"
+
+    # Atualizando as informações na tabela .xlsx
+    wb_path = "produtos.xlsx"
+    wb = openpyxl.load_workbook(wb_path)
+    sheet = wb["Sheet"]
+    sheet_obj = wb.active
+
+    # Encontrando a linha correspondente ao código do produto selecionado
+    for row in sheet_obj.iter_rows(min_row=2):
+        if str(row[0].value).strip() == str(code).strip():  # Convertendo para string antes de usar strip()
+            # Atualizando os valores da linha encontrada
+            row_values = [code, product, stock_status, avaliability]
+            for cell, value in zip(row, row_values):
+                cell.value = value
+            wb.save(wb_path)
+            treeview.item(selected_item, values=row_values)
+            messagebox.showinfo("Sucesso", "Produto atualizado com sucesso.")
+            return
+
+    messagebox.showerror("Erro", "Produto não encontrado na planilha.")
+    
+# Função para deletar o produto
+def delete_product():
+    selected_item = treeview.selection()
+
+    if not selected_item:
+        messagebox.showwarning("Aviso", "Selecione um produto na lista para deletar.")
+    else:
+        wb_path = "produtos.xlsx"
+        wb = openpyxl.load_workbook(wb_path)
+        sheet = wb["Sheet"]
+        sheet_obj = wb.active
+        code = treeview.item(selected_item, 'values')[0]
+
+        for row in sheet_obj.iter_rows(min_row=2):
+            if str(row[0].value).strip() == str(code).strip():  # Convertendo para string antes de usar strip()
+                idx = row[0].row
+                sheet_obj.delete_rows(idx)
+                wb.save(wb_path)
+                treeview.delete(selected_item)
+                messagebox.showinfo("Sucesso", "Produto deletado com sucesso.")
+                return
+
+        messagebox.showerror("Erro", "Produto não encontrado na planilha.")
+
 # CONFIGURANDO A INTERFACE GRÁFICA - GUI
-root = tk.Tk()
+root= tk.Tk()
 root.title("Sistema de Cadastro de Produtos")
 
 frame = tk.Frame(root)
@@ -84,13 +160,25 @@ checkbutton.grid(row=3, column=0, padx=5, pady=5, sticky="nsew")
 insert_button = ttk.Button(widgets_frame, text="Salvar produto", command= insert_row)
 insert_button.grid(row=4, column=0, padx=5, pady=5, sticky="nsew")
 
-# Separar as funções de atualizar e deletar
+# Separar campos 1
 separator = ttk.Separator(widgets_frame)
 separator.grid(row=5, column=0, padx=10, pady=10, sticky="ew")
 
+# Botão para selecionar produto
+select_button = ttk.Button(widgets_frame, text="Selecionar produto já cadastrado", command= select_product)
+select_button.grid(row=6, column=0, padx=5, pady=5, sticky="nsew")
+
 # Botão para editar produto
-edit_button = ttk.Button(widgets_frame, text="Editar produto já cadastrado")
-edit_button.grid(row=6, column=0, padx=5, pady=5, sticky="nsew")
+update_button = ttk.Button(widgets_frame, text="Salvar alterações do produto", command= update_product)
+update_button.grid(row=7, column=0, padx=5, pady=5, sticky="nsew")
+
+# Separar campos 2
+separator = ttk.Separator(widgets_frame)
+separator.grid(row=8, column=0, padx=10, pady=10, sticky="ew")
+
+# Botão para deletar produto
+delete_button = ttk.Button(widgets_frame, text="Deletar produto", command= delete_product)
+delete_button.grid(row=9, column=0, padx=5, pady=5, sticky="nsew")
 
 # Visualização da tabela Excel
 treeFrame = ttk.Frame(frame)
