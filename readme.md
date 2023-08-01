@@ -2,7 +2,7 @@
 
 **Aplicação em Python utilizando as bibliotecas openpyxl e tkinter para criar uma GUI com funções de CRUD em uma base de dados armazenada em um arquivo Excel (.xlsx).**
 
-<presentation src="/presentation/janela da aplicação.png">
+<img src="/presentation/janela.png">
 
 **DETALHAMENTO:**
 
