@@ -1,8 +1,10 @@
-RESUMO: 
+** RESUMO: **
 
-Aplicação em Python utilizando as bibliotecas openpyxl e tkinter para criar uma GUI com funções de CRUD em uma base de dados armazenada em um arquivo Excel (.xlsx).
+** Aplicação em Python utilizando as bibliotecas openpyxl e tkinter para criar uma GUI com funções de CRUD em uma base de dados armazenada em um arquivo Excel (.xlsx). **
 
-DETALHAMENTO:
+<presentation src="/presentation/janela da aplicação.png">
+
+** DETALHAMENTO: **
 
 Esse projeto consiste em uma aplicação de manipulação (CRUD) de uma base de dados em Excel (arquivos .xlsx). 
 
@@ -12,7 +14,7 @@ Na janela da aplicação, existem quatro campos de preenchimento, uma Spinbox pa
 
 Além disso, existe um visor com scroll bar na janela, onde é possível ver todos produtos cadastrados. Ao selecionar um produto, é possível editar seu cadastro ou deletá-lo com os botões presentes.
 
-MANUAL DE USO:
+** MANUAL DE USO: **
 
 - Execute o programa com o comando “python app.py” ou “python3 app.py” caso esteja utilizando um Mac (a janela abrirá automaticamente, caso o arquivo .xlsx não existe, uma janela de erro será exibida).
 
